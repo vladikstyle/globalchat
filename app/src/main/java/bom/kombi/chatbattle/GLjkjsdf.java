@@ -1,4 +1,4 @@
-package bom.tohellik.magerik;
+package bom.kombi.chatbattle;
 
 import android.content.Intent;
 import android.os.Bundle;

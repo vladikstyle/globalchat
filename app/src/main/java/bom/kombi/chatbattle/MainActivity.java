@@ -1,23 +1,29 @@
-package bom.tohellik.magerik;
+package bom.kombi.chatbattle;
 
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.PendingIntent;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
@@ -27,7 +33,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
-import android.widget.Toast;
+
 import com.onesignal.OneSignal;
 import com.appsflyer.AppsFlyerConversionListener;
 import com.appsflyer.AppsFlyerLib;
@@ -35,33 +41,41 @@ import com.facebook.FacebookSdk;
 import com.facebook.applinks.AppLinkData;
 import com.tohellik.magerik.R;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     WebView webliue;
-    WebSettings bemsetingos;
+   WebSettings bemsetingos;
     PendingIntent pendingIntent;
     int baleromse;
     Yueisdf httpURLConnection;
     ProgressBar progressBar;
     private String urlhost = "";
     static NetworkInfo netInfo;
+    public boolean isWasUsed = false;
 
     private static final String AF_DEV_KEY = "GDqSaoJNiNSSqjxRx9j4Fd";
-    private static final String ONESIGNAL_APP_ID = "4437b024-f926-4aca-94f7-11086ae2c9da";
+    private static final String ONESIGNAL_APP_ID = "96eb9883-8a36-420c-a10c-74eb598d0856";
 
     SharedPreferences mSettings;
     public static final String APP_PREFERENCES = "myurl";
     public static final String APP_PREFERENCES_URL = "url"; // имя кота
-    String urlGo = "https://dateheroes.xyz/uleJksmI"; // ТУТ СВОЙ ПОТОК КЕЙТАРО
+    String urlGo = "https://dateheroes.xyz/Ponyee"; // ТУТ СВОЙ ПОТОК КЕЙТАРО
     SharedPreferences.Editor editor;
 
     public ValueCallback<Uri[]> uploadMessage;
     private ValueCallback<Uri> mUploadMessage;
-    public static final int REQUEST_SELECT_FILE = 100;
+    public static final int REQUEST_SELECT_FILE = 1;
     private final static int FILECHOOSER_RESULTCODE = 1;
-
+    private String mCM;
+    private ValueCallback<Uri> mUM;
+    private ValueCallback<Uri[]> mUMA;
+    private final static int FCR=1;
 
     @SuppressLint("JavascriptInterface")
     @Override
@@ -83,6 +97,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
 // Enable verbose OneSignal logging to debug issues if needed.
         OneSignal.setLogLevel(OneSignal.LOG_LEVEL.VERBOSE, OneSignal.LOG_LEVEL.NONE);
 
@@ -203,32 +219,97 @@ public class MainActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         baleromse = httpURLConnection.intoservolus();
-
         if (baleromse != 404) {
-
-            webliue = (WebView) findViewById (R.id.iueyqwsssf);
+            webliue = findViewById (R.id.iueyqwsssf);
 
             webliue.post(new Runnable()
             {
-
                 @Override
                 public void run() {
+                    if (isWasUsed == false) {
+                        webliue.loadUrl(urlLoads);
+                        isWasUsed = true;
+                    }
+                   /* if (android.os.Build.VERSION.SDK_INT >= 24) {
+                        CookieManager.getInstance().setAcceptThirdPartyCookies(webliue, true);
+                    } else {
+                        CookieManager.getInstance().setAcceptCookie(true);
+                    }
+                    webliue.getSettings().setDomStorageEnabled(true);
+                    webliue.getSettings().setJavaScriptEnabled(true);
+                    webliue.getSettings().setSupportMultipleWindows(true);
 
-                    bemsetingos = webliue.getSettings();
+                    webliue.getSettings().setAllowFileAccess(true);
+*/
+                   bemsetingos = webliue.getSettings();
+                    if (android.os.Build.VERSION.SDK_INT >= 24) {
+                        CookieManager.getInstance().setAcceptThirdPartyCookies(webliue, true);
+                    } else {
+                        CookieManager.getInstance().setAcceptCookie(true);
+                    }
                     bemsetingos.setJavaScriptEnabled(true);
+                    bemsetingos.setJavaScriptCanOpenWindowsAutomatically(true);
                     bemsetingos.setDomStorageEnabled(true);
                     bemsetingos.setBuiltInZoomControls(true);
                     bemsetingos.setSupportZoom(true);
                     bemsetingos.setDisplayZoomControls(false);
                     webliue.setInitialScale(1);
                     webliue.getSettings().setLoadWithOverviewMode(true);
+                    webliue.getSettings().setSupportMultipleWindows(true);
                     webliue.getSettings().setUseWideViewPort(true);
-                    webliue.setWebChromeClient(new MyWebChromeClient());
+
                     webliue.getSettings().setAllowContentAccess(true);
                     webliue.getSettings().setAllowFileAccess(true);
-                    webliue.loadUrl(urlGo);
+
+                    webliue.setWebChromeClient(new WebChromeClient() {
+                        //For Android 3.0+
+
+                        public boolean onShowFileChooser(
+                                WebView webView, ValueCallback<Uri[]> filePathCallback,
+                                WebChromeClient.FileChooserParams fileChooserParams) {
+                            if (mUMA != null) {
+                                mUMA.onReceiveValue(null);
+                            }
+                            mUMA = filePathCallback;
+                            if (Build.VERSION.SDK_INT >= 23 && (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)) {
+                                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, 1);
+                            }
+                            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                            if (takePictureIntent.resolveActivity(MainActivity.this.getPackageManager()) != null) {
+                                File photoFile = null;
+                                try {
+                                    photoFile = createImageFile();
+                                    takePictureIntent.putExtra("PhotoPath", mCM);
+                                } catch (IOException ex) {
+
+                                }
+                                if (photoFile != null) {
+                                    mCM = "file:" + photoFile.getAbsolutePath();
+                                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                                } else {
+                                    takePictureIntent = null;
+                                }
+                            }
+                            Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                            contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                            contentSelectionIntent.setType("*/*");
+                            Intent[] intentArray;
+                            if (takePictureIntent != null) {
+                                intentArray = new Intent[]{takePictureIntent};
+                            } else {
+                                intentArray = new Intent[0];
+                            }
+
+                            Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
+                            chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
+                            chooserIntent.putExtra(Intent.EXTRA_TITLE, "Image Chooser");
+                            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+                            startActivityForResult(chooserIntent, FCR);
+                            return true;
+                        }
+                    });
+
                     if (18 < Build.VERSION.SDK_INT )
                     {
                         webliue.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
@@ -239,7 +320,7 @@ public class MainActivity extends AppCompatActivity {
                         webliue.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
                     }
 
-                    webliue.loadUrl(urlLoads);
+
 
                     webliue.addJavascriptInterface(new melovsting(), "HTMLOUT");
 
@@ -314,79 +395,44 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    class MyWebChromeClient extends WebChromeClient {
-        // For 3.0+ Devices (Start)
-        // onActivityResult attached before constructor
-        protected void openFileChooser(ValueCallback uploadMsg, String acceptType) {
-            mUploadMessage = uploadMsg;
-            Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-            i.addCategory(Intent.CATEGORY_OPENABLE);
-            i.setType("image/*");
-            startActivityForResult(Intent.createChooser(i, "File Chooser"), FILECHOOSER_RESULTCODE);
-        }
-
-
-        // For Lollipop 5.0+ Devices
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-        public boolean onShowFileChooser(WebView mWebView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
-            if (uploadMessage != null) {
-                uploadMessage.onReceiveValue(null);
-                uploadMessage = null;
-            }
-
-            uploadMessage = filePathCallback;
-
-            Intent intent = fileChooserParams.createIntent();
-            try {
-                startActivityForResult(intent, REQUEST_SELECT_FILE);
-            } catch (ActivityNotFoundException e) {
-                uploadMessage = null;
-                Toast.makeText(MainActivity.this, "Cannot Open File Chooser", Toast.LENGTH_LONG).show();
-                return false;
-            }
-            return true;
-        }
-
-        //For Android 4.1 magerik
-        protected void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType, String capture) {
-            mUploadMessage = uploadMsg;
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("image/*");
-            startActivityForResult(Intent.createChooser(intent, "File Chooser"), FILECHOOSER_RESULTCODE);
-        }
-
-        protected void openFileChooser(ValueCallback<Uri> uploadMsg) {
-            mUploadMessage = uploadMsg;
-            Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-            i.addCategory(Intent.CATEGORY_OPENABLE);
-            i.setType("image/*");
-            startActivityForResult(Intent.createChooser(i, "File Chooser"), FILECHOOSER_RESULTCODE);
-        }
-    }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (requestCode == REQUEST_SELECT_FILE) {
-                if (uploadMessage == null)
-                    return;
-                uploadMessage.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(resultCode, intent));
-                uploadMessage = null;
-            }
-        } else if (requestCode == FILECHOOSER_RESULTCODE) {
-            if (null == mUploadMessage)
-                return;
-            // Use MainActivity.RESULT_OK if you're implementing WebView inside Fragment
-            // Use RESULT_OK magerik if you're implementing WebView inside an Activity
-            Uri result = intent == null || resultCode != RESULT_OK ? null : intent.getData();
-            mUploadMessage.onReceiveValue(result);
-            mUploadMessage = null;
-        } else
-            Toast.makeText(this, "Failed to Upload Image", Toast.LENGTH_LONG).show();
-    }
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent){
 
+
+        super.onActivityResult(requestCode, resultCode, intent);
+        if(Build.VERSION.SDK_INT >= 21){
+            Uri[] results = null;
+            //Check if response is positive
+            if(resultCode== Activity.RESULT_OK){
+                if(requestCode == FCR){
+                    if(null == mUMA){
+                        return;
+                    }
+                    if(intent == null){
+                        //Capture Photo if no image available
+                        if(mCM != null){
+                            results = new Uri[]{Uri.parse(mCM)};
+                        }
+                    }else{
+                        String dataString = intent.getDataString();
+                        if(dataString != null){
+                            results = new Uri[]{Uri.parse(dataString)};
+                        }
+                    }
+                }
+            }
+            mUMA.onReceiveValue(results);
+            mUMA = null;
+        }else{
+            if(requestCode == FCR){
+                if(null == mUM) return;
+                Uri result = intent == null || resultCode != RESULT_OK ? null : intent.getData();
+                mUM.onReceiveValue(result);
+                mUM = null;
+            }
+        }
+    }
 
     @Override
     public void onBackPressed() {
@@ -397,7 +443,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    private File createImageFile() throws IOException{
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "img_"+timeStamp+"_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(imageFileName,".jpg",storageDir);
+    }
     public static boolean isOnline(Context context)
     {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

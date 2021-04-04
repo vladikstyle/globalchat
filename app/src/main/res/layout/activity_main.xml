@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.tohellik.magerik.bom.tohellik.magerik.MainActivity">
+    tools:context="bom.kombi.chatbattle.MainActivity">
 
     <WebView
         android:id="@+id/iueyqwsssf"

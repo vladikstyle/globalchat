@@ -1,4 +1,4 @@
-package bom.tohellik.magerik;
+package bom.kombi.chatbattle;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -14,7 +14,7 @@ class Yueisdf extends Thread {
     {
         URL myUrl = null;
         try {
-            myUrl = new URL("https://dateheroes.xyz/Lmsjvyems");
+            myUrl = new URL("https://dateheroes.xyz/Ikolmssa");
         } catch (MalformedURLException e) {
             System.out.println("Errorie");
             e.printStackTrace();
